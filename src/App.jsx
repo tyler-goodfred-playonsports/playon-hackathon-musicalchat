@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as music from './music'
 import { CAST, BEATS, CODA, delayFor } from './conversation'
-import { scoreMessage, scoreMessageAI } from './score'
+import { scoreMessage, scoreMessageAI, generateReply } from './score'
 
 const AXIS_META = [
   ['warmth', 'Warmth', '145 75% 52%'],
@@ -173,7 +173,7 @@ export default function App() {
   const [text, setText] = useState('')
   const [genres, setGenres] = useState([])
   const [genre, setGenre] = useState('classical')
-  const beat = useRef(0), busy = useRef(false), coda = useRef(0)
+  const beat = useRef(0), busy = useRef(false), coda = useRef(0), convo = useRef([])
   const clock = useRef(Date.parse('2026-07-23T09:12:00'))
   const feedRef = useRef(), tintRef = useRef(), barRefs = useRef({}), eqRefs = useRef([]), bgRefs = useRef([])
   const vizRef = useRef(), orbRef = useRef(), spin = useRef(0), parts = useRef([]), ripples = useRef([]), flash = useRef(0)
@@ -191,22 +191,48 @@ export default function App() {
     clock.current += 40000 + Math.random() * 50000
     return new Date(clock.current).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
   }
-  const add = m => setMsgs(x => [...x, { ...m, time: stamp(), id: x.length }])
+  const add = m => {
+    convo.current.push({ who: m.who, text: m.text }) // history for the live chatbot
+    setMsgs(x => [...x, { ...m, time: stamp(), id: x.length }])
+  }
   const wait = ms => new Promise(r => setTimeout(r, ms))
 
-  async function playBeat(b) {
-    busy.current = true
+  // reveal one message with a typing beat, then let it steer the score
+  async function reveal(m) {
+    setTyping(m.who)
+    await wait(delayFor(m.text))
+    setTyping(null)
+    music.setMood(m.mood)
+    add(m)
+    emitPulse(m.mood)
+  }
+
+  // play one scripted beat (a burst of authored messages); caller owns `busy`
+  async function playScript(b) {
     setMovement(b.movement)
     for (const m of b.messages) {
       await wait(420)
-      setTyping(m.who)
-      await wait(delayFor(m.text))
-      setTyping(null)
-      music.setMood(m.mood)
-      add(m)
-      emitPulse(m.mood)
+      await reveal(m)
     }
-    busy.current = false
+  }
+
+  // the room's response to a send: live chatbot when a key is set, else the script
+  async function respond() {
+    busy.current = true
+    try {
+      const reply = await generateReply(convo.current) // null with no key / on failure
+      if (reply) {
+        setMovement('Improvisation (live)')
+        await wait(300)
+        await reveal({ who: reply.who, text: reply.text, mood: reply.mood })
+      } else {
+        const b = BEATS[beat.current]
+        if (b) { beat.current++; await playScript(b) }
+        else await playScript(CODA[coda.current++ % CODA.length])
+      }
+    } finally {
+      busy.current = false
+    }
   }
 
   async function begin() {
@@ -214,7 +240,9 @@ export default function App() {
     setStarted(true)
     await music.start()
     beat.current = 1
-    playBeat(BEATS[0])
+    busy.current = true
+    await playScript(BEATS[0]) // scripted opener sets the scene in both modes
+    busy.current = false
   }
 
   function send(e) {
@@ -222,7 +250,6 @@ export default function App() {
     const t = text.trim()
     if (!t || !started) return
     setText('')
-    const b = BEATS[beat.current]
     const quick = scoreMessage(t, music.getMood()) // instant heuristic — never blocks the UI
     music.setMood(quick)
     add({ who: 'you', text: t, mood: quick })
@@ -230,8 +257,7 @@ export default function App() {
     // live AI scoring reads between the lines; refine the music when it lands
     scoreMessageAI(t, quick).then(ai => ai && music.setMood(ai))
     if (busy.current) return
-    if (b) { beat.current++; playBeat(b) }
-    else playBeat(CODA[coda.current++ % CODA.length])
+    respond() // live reply if available, otherwise the next scripted beat
   }
 
   // discover which stem genres have been generated (public/music/genres.json)

@@ -67,6 +67,29 @@ export async function scoreMessageAI(text, base = NEUTRAL) {
   }
 }
 
+// Live chatbot reply via /api/reply — returns { who, text, mood } or null on any
+// failure/timeout, so the caller falls back to the scripted conversation.
+export async function generateReply(messages) {
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), 7000)
+  try {
+    const res = await fetch('/api/reply', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ messages }),
+      signal: ctrl.signal,
+    })
+    if (!res.ok) return null
+    const reply = await res.json()
+    if (!reply || !reply.who || typeof reply.text !== 'string' || !reply.mood) return null
+    return reply
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // dev sanity: the marquee tones score the way the demo promises
 const top = m => Object.keys(m).reduce((a, b) => (m[b] > m[a] ? b : a))
 console.assert(top(scoreMessage('uh oh!')) === 'concern', 'uh oh should read as concern')

@@ -11,33 +11,30 @@ function readJson(req) {
   })
 }
 
-// Serve POST /api/turn during `npm run dev` using the same handler Vercel runs in
-// prod — so local dev needs no Vercel CLI or account.
-const devApi = {
-  name: 'dev-api-turn',
-  configureServer(server) {
-    server.middlewares.use('/api/turn', async (req, res, next) => {
-      if (req.method !== 'POST') return next()
-      const mod = await server.ssrLoadModule('/src/lib/scoreTone.js')
-      if (!mod.hasApiKey()) {
-        // No key configured — skip the call silently; client uses the heuristic.
-        res.statusCode = 503
-        res.setHeader('content-type', 'application/json')
-        res.end(JSON.stringify({ error: 'scoring disabled' }))
-        return
-      }
-      try {
-        const scored = await mod.scoreTone(await readJson(req))
-        res.setHeader('content-type', 'application/json')
-        res.end(JSON.stringify(scored))
-      } catch (err) {
-        server.config.logger.error(`[dev /api/turn] ${err?.message || err}`)
-        res.statusCode = 500
-        res.setHeader('content-type', 'application/json')
-        res.end(JSON.stringify({ error: 'scoring failed' }))
-      }
-    })
-  },
+// Serve a POST /api/* route in dev using the same server module Vercel runs in
+// prod — so local dev needs no Vercel CLI. `modulePath` exports `fn` + hasApiKey.
+function apiRoute(route, modulePath, fn) {
+  return {
+    name: `dev-api-${fn}`,
+    configureServer(server) {
+      server.middlewares.use(route, async (req, res, next) => {
+        if (req.method !== 'POST') return next()
+        const send = (code, body) => {
+          res.statusCode = code
+          res.setHeader('content-type', 'application/json')
+          res.end(JSON.stringify(body))
+        }
+        try {
+          const mod = await server.ssrLoadModule(modulePath)
+          if (!mod.hasApiKey()) return send(503, { error: 'disabled' }) // no key — client falls back
+          send(200, await mod[fn](await readJson(req)))
+        } catch (err) {
+          server.config.logger.error(`[dev ${route}] ${err?.message || err}`)
+          send(500, { error: 'failed' })
+        }
+      })
+    },
+  }
 }
 
 export default defineConfig(({ mode }) => {
@@ -47,7 +44,11 @@ export default defineConfig(({ mode }) => {
     process.env.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY
   }
   return {
-    plugins: [react(), devApi],
+    plugins: [
+      react(),
+      apiRoute('/api/turn', '/src/lib/scoreTone.js', 'scoreTone'),
+      apiRoute('/api/reply', '/src/lib/replyChat.js', 'generateReply'),
+    ],
     server: { port: 5173, strictPort: true },
   }
 })

@@ -39,6 +39,19 @@ messages.
   skipped entirely (fast, silent) when no `ANTHROPIC_API_KEY` is set.
 - Config/docs: `.env.example`, `README.md`, `package.json`.
 
+### 4. Live dynamic chatbot (optional)
+The reviewers can reply **live and in-character** via Claude instead of following
+the fixed screenplay.
+- **Shared handler** — `src/lib/replyChat.js`: given the thread so far, Claude picks
+  which reviewer (Alex / Sam / Stephanie / Mark) speaks next, writes their message
+  in-voice, and scores its mood — all in one structured-output call.
+- **Vercel function** — `api/reply.js`: `POST /api/reply`.
+- **Vite dev middleware** — the config now serves both `/api/turn` and `/api/reply`.
+- **Graceful default** — `src/score.js` `generateReply()` calls the route with a 7s
+  timeout; on any failure — and whenever no `ANTHROPIC_API_KEY` is set — `App.jsx`
+  falls back to the **scripted `conversation.js` beats**, so a keyless demo behaves
+  exactly as before. The scripted opener always plays to set the scene.
+
 ## What the base repo already handled
 
 - **Slack-style chat UI** — messages, typing indicators, float-in animations,
