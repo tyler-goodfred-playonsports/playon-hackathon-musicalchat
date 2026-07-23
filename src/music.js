@@ -43,7 +43,7 @@ const dominant = () => AXES.reduce((best, a) => (cur[a] > cur[best] ? a : best),
 const noteDur = () => 30 / (62 + cur.warmth * 38 - cur.concern * 10 + cur.passiveAggression * 18)
 
 export async function start() {
-  if (ctx) return
+  if (ctx) { await ctx.resume().catch(() => {}); return } // resume if the tab suspended it
   ctx = new (window.AudioContext || window.webkitAudioContext)()
   master = ctx.createGain()
   master.gain.value = 0.9
@@ -56,6 +56,11 @@ export async function start() {
 
   stems = await loadStems().catch(() => null)
   if (!stems) buildSynth()
+
+  await ctx.resume().catch(() => {}) // browsers start the context suspended until a gesture
+  document.addEventListener('visibilitychange', () => {
+    if (ctx && document.visibilityState === 'visible') ctx.resume().catch(() => {})
+  })
 
   nextNote = nextChord = ctx.currentTime + 0.1
   setInterval(tick, TICK * 1000)

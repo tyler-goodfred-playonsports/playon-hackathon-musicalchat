@@ -43,6 +43,30 @@ export function scoreMessage(text, base = NEUTRAL) {
   return mood
 }
 
+// Live AI scoring via /api/turn (Claude reads between the lines). Returns the
+// scored mood, or null on any failure/timeout — the caller keeps the instant
+// heuristic so the demo never blocks or breaks when the network/key is absent.
+export async function scoreMessageAI(text, base = NEUTRAL) {
+  const ctrl = new AbortController()
+  const timer = setTimeout(() => ctrl.abort(), 1500)
+  try {
+    const res = await fetch('/api/turn', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ text, mood: base }),
+      signal: ctrl.signal,
+    })
+    if (!res.ok) return null
+    const mood = await res.json()
+    if (NEUTRAL && Object.keys(NEUTRAL).some(k => typeof mood[k] !== 'number')) return null
+    return mood
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // dev sanity: the marquee tones score the way the demo promises
 const top = m => Object.keys(m).reduce((a, b) => (m[b] > m[a] ? b : a))
 console.assert(top(scoreMessage('uh oh!')) === 'concern', 'uh oh should read as concern')

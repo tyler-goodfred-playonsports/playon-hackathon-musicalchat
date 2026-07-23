@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as music from './music'
 import { CAST, BEATS, CODA, delayFor } from './conversation'
-import { scoreMessage } from './score'
+import { scoreMessage, scoreMessageAI } from './score'
 
 const AXIS_META = [
   ['warmth', 'Warmth', '38 92% 60%'],
@@ -9,6 +9,8 @@ const AXIS_META = [
   ['tension', 'Tension', '352 90% 60%'],
   ['passiveAggression', 'Passive aggression', '272 85% 68%'],
 ]
+
+const ZERO = new Uint8Array(32) // fallback spectrum so the visuals draw even before/without audio
 
 function dominantAxis(mood) {
   let best = AXIS_META[0]
@@ -65,7 +67,8 @@ function drawOrb(g, data, mood, w, h, rot, flash) {
   const cx = w / 2, cy = h / 2, min = Math.min(w, h)
   const bass = (data[0] + data[1] + data[2]) / (3 * 255)
   const hsl = dominantAxis(mood)[2]
-  const coreR = min * 0.15 * (1 + bass * 0.3 + flash * 0.35)
+  const breathe = 0.06 * (0.5 + 0.5 * Math.sin(rot * 4)) // gentle idle pulse when silent
+  const coreR = min * 0.15 * (1 + bass * 0.3 + flash * 0.35 + breathe)
 
   // soft halo
   const halo = g.createRadialGradient(cx, cy, coreR * 0.3, cx, cy, coreR * 2.6)
@@ -80,7 +83,7 @@ function drawOrb(g, data, mood, w, h, rot, flash) {
   g.lineCap = 'round'
   for (let i = 0; i < N; i++) {
     const t = i / N
-    const v = data[Math.round((1 - Math.abs(2 * t - 1)) * 22)] / 255
+    const v = Math.max(0.12, data[Math.round((1 - Math.abs(2 * t - 1)) * 22)] / 255) // ring always visible
     const a = t * Math.PI * 2 + rot
     const r0 = coreR * 1.12
     const r1 = r0 + v * min * 0.26 + 4
@@ -218,10 +221,12 @@ export default function App() {
     if (!t || !started) return
     setText('')
     const b = BEATS[beat.current]
-    const mood = scoreMessage(t, music.getMood()) // your tone steers the score live
-    music.setMood(mood)
-    add({ who: 'you', text: t, mood })
-    emitPulse(mood)
+    const quick = scoreMessage(t, music.getMood()) // instant heuristic — never blocks the UI
+    music.setMood(quick)
+    add({ who: 'you', text: t, mood: quick })
+    emitPulse(quick)
+    // live AI scoring reads between the lines; refine the music when it lands
+    scoreMessageAI(t, quick).then(ai => ai && music.setMood(ai))
     if (busy.current) return
     if (b) { beat.current++; playBeat(b) }
     else playBeat(CODA[coda.current++ % CODA.length])
@@ -262,26 +267,28 @@ export default function App() {
         eqRefs.current.forEach((el, i) => {
           if (el) el.style.transform = `scaleY(${Math.max(0.08, data[2 + i * 3] / 255)})`
         })
-        spin.current += 0.0016 // slow drift so nothing feels static
-        flash.current *= 0.93 // message kick decays back down
-        const bass = (data[0] + data[1] + data[2]) / (3 * 255)
-        if (g) {
-          const [w, h] = fit(cvs, g)
-          if (!parts.current.length) parts.current = Array.from({ length: 70 }, () => ({
-            x: Math.random() * w, y: Math.random() * h,
-            vx: (Math.random() - 0.5) * 0.35, vy: -0.15 - Math.random() * 0.3,
-            z: 0.4 + Math.random() * 0.9,
-          }))
-          const speed = 1 + m.tension * 2.4 + bass * 1.6 // motes hurry when things get tense
-          g.clearRect(0, 0, w, h)
-          drawParticles(g, parts.current, dominantAxis(m)[2], w, h, speed)
-          drawViz(g, data, m, w, h, spin.current)
-          drawRipples(g, ripples.current, w, h)
-        }
-        if (og) {
-          const [w, h] = fit(orb, og)
-          drawOrb(og, data, m, w, h, spin.current * 2.2, flash.current)
-        }
+      }
+      // draw every frame — even before audio starts or while it's silent — so the orb never looks dead
+      const freq = data || ZERO
+      spin.current += 0.0016 // slow drift so nothing feels static
+      flash.current *= 0.93 // message kick decays back down
+      const bass = (freq[0] + freq[1] + freq[2]) / (3 * 255)
+      if (g) {
+        const [w, h] = fit(cvs, g)
+        if (!parts.current.length) parts.current = Array.from({ length: 70 }, () => ({
+          x: Math.random() * w, y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.35, vy: -0.15 - Math.random() * 0.3,
+          z: 0.4 + Math.random() * 0.9,
+        }))
+        const speed = 1 + m.tension * 2.4 + bass * 1.6 // motes hurry when things get tense
+        g.clearRect(0, 0, w, h)
+        drawParticles(g, parts.current, dominantAxis(m)[2], w, h, speed)
+        drawViz(g, freq, m, w, h, spin.current)
+        drawRipples(g, ripples.current, w, h)
+      }
+      if (og) {
+        const [w, h] = fit(orb, og)
+        drawOrb(og, freq, m, w, h, spin.current * 2.2, flash.current)
       }
       raf = requestAnimationFrame(loop)
     }
