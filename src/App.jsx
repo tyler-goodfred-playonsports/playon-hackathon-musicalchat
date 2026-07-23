@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as music from './music'
 import { CAST, BEATS, CODA, delayFor } from './conversation'
+import { scoreMessage } from './score'
 
 const AXIS_META = [
   ['warmth', 'Warmth', '38 92% 60%'],
@@ -49,7 +50,7 @@ export default function App() {
   const [text, setText] = useState('')
   const beat = useRef(0), busy = useRef(false), coda = useRef(0)
   const clock = useRef(Date.parse('2026-07-23T09:12:00'))
-  const feedRef = useRef(), tintRef = useRef(), barRefs = useRef({}), eqRefs = useRef([])
+  const feedRef = useRef(), tintRef = useRef(), barRefs = useRef({}), eqRefs = useRef([]), bgRefs = useRef([])
 
   const stamp = () => {
     clock.current += 40000 + Math.random() * 50000
@@ -73,6 +74,7 @@ export default function App() {
   }
 
   async function begin() {
+    if (beat.current) return // double-click on the start button must not replay the opening
     setStarted(true)
     await music.start()
     beat.current = 1
@@ -85,7 +87,7 @@ export default function App() {
     if (!t || !started) return
     setText('')
     const b = BEATS[beat.current]
-    const mood = (b || CODA[0]).user
+    const mood = scoreMessage(t, music.getMood()) // your tone steers the score live
     music.setMood(mood)
     add({ who: 'you', text: t, mood })
     if (busy.current) return
@@ -107,6 +109,10 @@ export default function App() {
         if (el) el.style.width = `${(m[k] * 100).toFixed(1)}%`
       }
       tintRef.current?.style.setProperty('--accent', moodColor(m, 0.55))
+      // crossfade the blurred scene layers toward the dominant mood
+      const ws = AXIS_META.map(([k]) => m[k] ** 2)
+      const sum = ws.reduce((a, b) => a + b, 0) || 1
+      bgRefs.current.forEach((el, i) => { if (el) el.style.opacity = (0.55 * ws[i] / sum).toFixed(3) })
       const an = music.getAnalyser()
       if (an) {
         data ||= new Uint8Array(an.frequencyBinCount)
@@ -123,7 +129,13 @@ export default function App() {
 
   return (
     <div className="shell">
-      <div className="tint" ref={tintRef} />
+      <div className="backdrop" aria-hidden="true">
+        {AXIS_META.map(([k], i) => (
+          <div key={k} className="layer" style={{ backgroundImage: `url(/bg/${k}.svg)` }} ref={el => (bgRefs.current[i] = el)} />
+        ))}
+        <div className="tint" ref={tintRef} />
+        <div className="vignette" />
+      </div>
 
       <div className={started ? 'overlay out' : 'overlay'}>
         <div className="card">

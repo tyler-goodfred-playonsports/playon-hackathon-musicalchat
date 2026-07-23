@@ -12,8 +12,8 @@ export const CAST = {
   you:   { name: 'You',           initials: 'YO', hue: 200 },
 }
 
-// Each beat plays after one user send (beat 0 autoplays). `user` is the mood
-// stamped on the user's own message that triggers the beat.
+// Each beat plays after one user send (beat 0 autoplays). The user's own
+// messages are scored live by score.js; only scripted replies are authored.
 export const BEATS = [
   {
     movement: 'I. Morning Mood (pastorale)',
@@ -26,7 +26,6 @@ export const BEATS = [
   },
   {
     movement: 'II. Un poco inquieto',
-    user: { warmth: 0.6, concern: 0.15, tension: 0.1, passiveAggression: 0.05 },
     messages: [
       { who: 'sam', text: 'first pass: the naming is 💯 and the test coverage is genuinely lovely',
         mood: { warmth: 0.8, concern: 0.12, tension: 0.08, passiveAggression: 0.02 } },
@@ -36,7 +35,6 @@ export const BEATS = [
   },
   {
     movement: 'II. Un poco inquieto (crescendo)',
-    user: { warmth: 0.4, concern: 0.35, tension: 0.3, passiveAggression: 0.1 },
     messages: [
       { who: 'alex', text: 'it collapsed the DI graph a lot — threading it through three services felt worse tbh',
         mood: { warmth: 0.3, concern: 0.4, tension: 0.42, passiveAggression: 0.15 } },
@@ -46,7 +44,6 @@ export const BEATS = [
   },
   {
     movement: 'III. Adding Stakeholders (allegro furioso, ma cortese)',
-    user: { warmth: 0.2, concern: 0.5, tension: 0.55, passiveAggression: 0.25 },
     messages: [
       { who: 'sam', text: 'This is a significant architectural change. Adding Stephanie and Mark for visibility.',
         mood: { warmth: 0.05, concern: 0.55, tension: 0.88, passiveAggression: 0.97 } },
@@ -58,7 +55,6 @@ export const BEATS = [
   },
   {
     movement: 'IV. Riconciliazione (tenderly)',
-    user: { warmth: 0.45, concern: 0.4, tension: 0.3, passiveAggression: 0.1 },
     messages: [
       { who: 'alex', text: '…totally fair, I should have flagged the design shift up front. want to pair after standup and split this into two PRs?',
         mood: { warmth: 0.6, concern: 0.4, tension: 0.25, passiveAggression: 0.05 } },
@@ -74,7 +70,6 @@ export const BEATS = [
 export const CODA = [
   {
     movement: 'V. Coda (all clear)',
-    user: { warmth: 0.7, concern: 0.1, tension: 0.05, passiveAggression: 0 },
     messages: [
       { who: 'sam', text: '🎻 (the orchestra takes a bow)',
         mood: { warmth: 0.9, concern: 0.05, tension: 0.03, passiveAggression: 0 } },
@@ -82,7 +77,6 @@ export const CODA = [
   },
   {
     movement: 'V. Coda (all clear)',
-    user: { warmth: 0.7, concern: 0.1, tension: 0.05, passiveAggression: 0 },
     messages: [
       { who: 'alex', text: 'encore tomorrow — same thread, new PR 😄',
         mood: { warmth: 0.9, concern: 0.05, tension: 0.03, passiveAggression: 0 } },

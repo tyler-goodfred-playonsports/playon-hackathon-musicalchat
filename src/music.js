@@ -59,7 +59,7 @@ export async function start() {
 
   nextNote = nextChord = ctx.currentTime + 0.1
   setInterval(tick, TICK * 1000)
-  window.UNDERTONES = { getMood, mode: () => (stems ? 'stems' : 'synth'), state: () => ctx.state } // demo debug handle
+  window.UNDERTONES = { getMood, setMood, mode: () => (stems ? 'stems' : 'synth'), state: () => ctx.state } // demo debug handle
 }
 
 export function setMood(mood) { target = { ...target, ...mood } }

@@ -10,15 +10,29 @@ body {
 b { color: #fff; }
 .muted { color: rgba(232, 234, 240, 0.45); }
 
-/* mood-tinted ambient glow behind everything */
-.tint {
-  position: fixed;
+/* mood atmosphere: blurred scene layers crossfaded by the score, plus accent glow */
+.backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.backdrop .layer {
+  position: absolute;
+  inset: -60px; /* hides blur edge bleed */
+  background-size: cover;
+  background-position: center;
+  filter: blur(30px) saturate(1.25);
+  transform: scale(1.08);
+  opacity: 0;
+}
+.backdrop .vignette {
+  position: absolute;
   inset: 0;
-  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 40%, rgba(6, 7, 10, 0.72));
+}
+.tint {
+  position: absolute;
+  inset: 0;
   background:
     radial-gradient(60% 50% at 18% -5%, var(--accent, transparent), transparent 70%),
     radial-gradient(50% 45% at 88% 105%, var(--accent, transparent), transparent 70%);
-  opacity: 0.2;
+  opacity: 0.25;
 }
 
 .shell { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
@@ -43,7 +57,7 @@ header .muted { margin-left: 12px; font-size: 12.5px; }
 main { flex: 1; display: flex; gap: 16px; padding: 16px 20px 20px; min-height: 0; }
 
 .chat, .score {
-  background: rgba(255, 255, 255, 0.028);
+  background: rgba(10, 12, 17, 0.55); /* dark glass keeps text crisp over the scene */
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 18px;
   backdrop-filter: blur(18px);

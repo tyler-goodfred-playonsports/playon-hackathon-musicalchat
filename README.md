@@ -24,6 +24,9 @@ current movement, a live EQ, and the four mood meters blending in real time.
 
 - [src/conversation.js](src/conversation.js) — the scripted beats, each message tagged
   with a hardcoded mood vector (the demo-day fallback).
+- [src/score.js](src/score.js) — live heuristic tone scorer for *your* messages: "uh oh!"
+  pulls the score toward concern, ALL CAPS spikes tension, a curt "Fine." reads as
+  passive aggression. Offline and instant; swap its internals for the AI call below.
 - [src/music.js](src/music.js) — the score engine. Default backend is a procedural
   WebAudio synth (palettes per dominant mood, continuous ramps for brightness, tempo,
   tremolo, drone, timpani) so the demo works offline with zero assets. If

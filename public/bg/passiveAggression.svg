@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#120a1f"/>
+      <stop offset="0.65" stop-color="#2a1448"/>
+      <stop offset="1" stop-color="#33195c"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#b04ad8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#b04ad8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <ellipse cx="820" cy="840" rx="820" ry="300" fill="url(#glow)"/>
+  <g fill="#0d0716">
+    <rect x="60" y="520" width="150" height="380"/>
+    <rect x="260" y="430" width="120" height="470"/>
+    <rect x="430" y="560" width="170" height="340"/>
+    <rect x="650" y="380" width="140" height="520"/>
+    <rect x="840" y="500" width="180" height="400"/>
+    <rect x="1070" y="420" width="130" height="480"/>
+    <rect x="1250" y="550" width="160" height="350"/>
+    <rect x="1460" y="470" width="120" height="430"/>
+  </g>
+  <g fill="#d9a0ff" opacity="0.5">
+    <rect x="300" y="470" width="16" height="10"/>
+    <rect x="690" y="430" width="16" height="10"/>
+    <rect x="730" y="470" width="16" height="10"/>
+    <rect x="1100" y="460" width="16" height="10"/>
+    <rect x="890" y="540" width="16" height="10"/>
+    <rect x="1290" y="590" width="16" height="10"/>
+  </g>
+</svg>
