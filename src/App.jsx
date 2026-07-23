@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as music from './music'
 import { CAST, BEATS, CODA, MOVEMENTS, delayFor } from './conversation'
-import { scoreMessage } from './score'
+import { scoreMessage, scoreMessageAI, generateReply } from './score'
 import { drawSprite } from './sprites'
 
 const AXIS_META = [
@@ -10,6 +10,8 @@ const AXIS_META = [
   ['tension', 'Tension', '352 90% 60%'],
   ['passiveAggression', 'Passive aggression', '272 85% 68%'],
 ]
+
+const ZERO = new Uint8Array(32) // fallback spectrum so the visuals draw even before/without audio
 
 const GENRE_META = {
   classical: ['🎻', 'Classical'], edm: ['🎛️', 'EDM'], country: ['🤠', 'Country'],
@@ -74,7 +76,8 @@ function drawOrb(g, data, mood, w, h, rot, flash) {
   const cx = w / 2, cy = h / 2, min = Math.min(w, h)
   const bass = (data[0] + data[1] + data[2]) / (3 * 255)
   const hsl = dominantAxis(mood)[2]
-  const coreR = min * 0.15 * (1 + bass * 0.3 + flash * 0.35)
+  const breathe = 0.06 * (0.5 + 0.5 * Math.sin(rot * 4)) // gentle idle pulse when silent
+  const coreR = min * 0.15 * (1 + bass * 0.3 + flash * 0.35 + breathe)
 
   // soft halo
   const halo = g.createRadialGradient(cx, cy, coreR * 0.3, cx, cy, coreR * 2.6)
@@ -89,7 +92,7 @@ function drawOrb(g, data, mood, w, h, rot, flash) {
   g.lineCap = 'round'
   for (let i = 0; i < N; i++) {
     const t = i / N
-    const v = data[Math.round((1 - Math.abs(2 * t - 1)) * 22)] / 255
+    const v = Math.max(0.12, data[Math.round((1 - Math.abs(2 * t - 1)) * 22)] / 255) // ring always visible
     const a = t * Math.PI * 2 + rot
     const r0 = coreR * 1.12
     const r1 = r0 + v * min * 0.26 + 4
@@ -179,7 +182,7 @@ export default function App() {
   const [text, setText] = useState('')
   const [genres, setGenres] = useState([])
   const [genre, setGenre] = useState('classical')
-  const beat = useRef(0), busy = useRef(false), coda = useRef(0)
+  const beat = useRef(0), busy = useRef(false), coda = useRef(0), convo = useRef([])
   const clock = useRef(Date.parse('2026-07-23T09:12:00'))
   const feedRef = useRef(), tintRef = useRef(), barRefs = useRef({}), eqRefs = useRef([]), bgRefs = useRef([])
   const vizRef = useRef(), orbRef = useRef(), spin = useRef(0), parts = useRef([]), ripples = useRef([]), flash = useRef(0)
@@ -197,22 +200,48 @@ export default function App() {
     clock.current += 40000 + Math.random() * 50000
     return new Date(clock.current).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
   }
-  const add = m => setMsgs(x => [...x, { ...m, time: stamp(), id: x.length }])
+  const add = m => {
+    convo.current.push({ who: m.who, text: m.text }) // history for the live chatbot
+    setMsgs(x => [...x, { ...m, time: stamp(), id: x.length }])
+  }
   const wait = ms => new Promise(r => setTimeout(r, ms))
 
-  async function playBeat(b) {
-    busy.current = true
+  // reveal one message with a typing beat, then let it steer the score
+  async function reveal(m) {
+    setTyping(m.who)
+    await wait(delayFor(m.text))
+    setTyping(null)
+    music.setMood(m.mood)
+    add(m)
+    emitPulse(m.mood)
+  }
+
+  // play one scripted beat (a burst of authored messages); caller owns `busy`
+  async function playScript(b) {
     setMovement(b.movement)
     for (const m of b.messages) {
       await wait(420)
-      setTyping(m.who)
-      await wait(delayFor(m.text))
-      setTyping(null)
-      music.setMood(m.mood)
-      add(m)
-      emitPulse(m.mood)
+      await reveal(m)
     }
-    busy.current = false
+  }
+
+  // the room's response to a send: live chatbot when a key is set, else the script
+  async function respond() {
+    busy.current = true
+    try {
+      const reply = await generateReply(convo.current) // null with no key / on failure
+      if (reply) {
+        setMovement('Improvisation (live)')
+        await wait(300)
+        await reveal({ who: reply.who, text: reply.text, mood: reply.mood })
+      } else {
+        const b = BEATS[beat.current]
+        if (b) { beat.current++; await playScript(b) }
+        else await playScript(CODA[coda.current++ % CODA.length])
+      }
+    } finally {
+      busy.current = false
+    }
   }
 
   async function begin() {
@@ -220,7 +249,9 @@ export default function App() {
     setStarted(true)
     await music.start()
     beat.current = 1
-    playBeat(BEATS[0])
+    busy.current = true
+    await playScript(BEATS[0]) // scripted opener sets the scene in both modes
+    busy.current = false
   }
 
   function send(e) {
@@ -228,14 +259,14 @@ export default function App() {
     const t = text.trim()
     if (!t || !started) return
     setText('')
-    const b = BEATS[beat.current]
-    const mood = scoreMessage(t, music.getMood()) // your tone steers the score live
-    music.setMood(mood)
-    add({ who: 'you', text: t, mood })
-    emitPulse(mood)
+    const quick = scoreMessage(t, music.getMood()) // instant heuristic — never blocks the UI
+    music.setMood(quick)
+    add({ who: 'you', text: t, mood: quick })
+    emitPulse(quick)
+    // live AI scoring reads between the lines; refine the music when it lands
+    scoreMessageAI(t, quick).then(ai => ai && music.setMood(ai))
     if (busy.current) return
-    if (b) { beat.current++; playBeat(b) }
-    else playBeat(CODA[coda.current++ % CODA.length])
+    respond() // live reply if available, otherwise the next scripted beat
   }
 
   // discover which stem genres have been generated (public/music/genres.json)
@@ -299,26 +330,28 @@ export default function App() {
         eqRefs.current.forEach((el, i) => {
           if (el) el.style.transform = `scaleY(${Math.max(0.08, data[2 + i * 3] / 255)})`
         })
-        spin.current += 0.0016 // slow drift so nothing feels static
-        flash.current *= 0.93 // message kick decays back down
-        const bass = (data[0] + data[1] + data[2]) / (3 * 255)
-        if (g) {
-          const [w, h] = fit(cvs, g)
-          if (!parts.current.length) parts.current = Array.from({ length: 70 }, () => ({
-            x: Math.random() * w, y: Math.random() * h,
-            vx: (Math.random() - 0.5) * 0.35, vy: -0.15 - Math.random() * 0.3,
-            z: 0.4 + Math.random() * 0.9,
-          }))
-          const speed = 1 + m.tension * 2.4 + bass * 1.6 // motes hurry when things get tense
-          g.clearRect(0, 0, w, h)
-          drawParticles(g, parts.current, dominantAxis(m)[2], w, h, speed)
-          drawViz(g, data, m, w, h, spin.current)
-          drawRipples(g, ripples.current, w, h)
-        }
-        if (og) {
-          const [w, h] = fit(orb, og)
-          drawOrb(og, data, m, w, h, spin.current * 2.2, flash.current)
-        }
+      }
+      // draw every frame — even before audio starts or while it's silent — so the orb never looks dead
+      const freq = data || ZERO
+      spin.current += 0.0016 // slow drift so nothing feels static
+      flash.current *= 0.93 // message kick decays back down
+      const bass = (freq[0] + freq[1] + freq[2]) / (3 * 255)
+      if (g) {
+        const [w, h] = fit(cvs, g)
+        if (!parts.current.length) parts.current = Array.from({ length: 70 }, () => ({
+          x: Math.random() * w, y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.35, vy: -0.15 - Math.random() * 0.3,
+          z: 0.4 + Math.random() * 0.9,
+        }))
+        const speed = 1 + m.tension * 2.4 + bass * 1.6 // motes hurry when things get tense
+        g.clearRect(0, 0, w, h)
+        drawParticles(g, parts.current, dominantAxis(m)[2], w, h, speed)
+        drawViz(g, freq, m, w, h, spin.current)
+        drawRipples(g, ripples.current, w, h)
+      }
+      if (og) {
+        const [w, h] = fit(orb, og)
+        drawOrb(og, freq, m, w, h, spin.current * 2.2, flash.current)
       }
       raf = requestAnimationFrame(loop)
     }
@@ -377,7 +410,11 @@ export default function App() {
 
         <aside className="score">
           <h2>♪ The Score</h2>
-          <div className="movement">{movement < 0 ? '— tuning —' : (MOVEMENTS[genre] || MOVEMENTS.classical)[movement]}</div>
+          <div className="movement">
+            {typeof movement === 'string' ? movement
+              : movement < 0 ? '— tuning —'
+              : (MOVEMENTS[genre] || MOVEMENTS.classical)[movement]}
+          </div>
           {genres.length > 0 && (
             <div className="genre">
               <div className="genre-head">

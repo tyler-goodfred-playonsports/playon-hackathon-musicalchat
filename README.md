@@ -43,19 +43,19 @@ auto-switches from synth to crossfaded stems:
 ELEVENLABS_API_KEY=... npm run stems
 ```
 
-**Live scoring (Vercel AI SDK)** — replace the hardcoded `mood` in
-`conversation.js` with a per-message call from an API route:
+**Live scoring (Claude)** — your own messages are scored live by
+`claude-haiku-4-5`, reading between the lines. It's wired up already:
 
-```js
-import { generateObject } from 'ai'
-import { z } from 'zod'
+- [src/lib/scoreTone.js](src/lib/scoreTone.js) — the shared handler. Calls Claude
+  via the official `@anthropic-ai/sdk` with a structured-outputs schema (the four
+  axes as 0–1 floats). Server-only — the API key never reaches the browser.
+- [api/turn.js](api/turn.js) — Vercel serverless wrapper (`POST /api/turn`).
+- [vite.config.js](vite.config.js) — a dev middleware that serves the same
+  handler, so `npm run dev` alone runs live scoring — no Vercel CLI needed.
+- [src/score.js](src/score.js) — `scoreMessageAI()` calls the route with a 1.5s
+  timeout and **falls back to the offline heuristic** on any failure, so the demo
+  never blocks or breaks if the network/key is absent.
 
-const { object: mood } = await generateObject({
-  model: 'anthropic/claude-haiku-4-5',
-  schema: z.object({
-    warmth: z.number(), concern: z.number(),
-    tension: z.number(), passiveAggression: z.number(),
-  }),
-  prompt: `Score this Slack message from 0 to 1 on each axis, reading between the lines: "${text}"`,
-})
-```
+Add your key to `.env.local` (`ANTHROPIC_API_KEY=...`) and restart the dev server.
+Deploy: set the same variable in the Vercel project — the function ships with the
+static site automatically.
