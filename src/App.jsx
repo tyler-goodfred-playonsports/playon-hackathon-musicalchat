@@ -186,6 +186,10 @@ export default function App() {
   const clock = useRef(Date.parse('2026-07-23T09:12:00'))
   const feedRef = useRef(), tintRef = useRef(), barRefs = useRef({}), eqRefs = useRef([]), bgRefs = useRef([])
   const vizRef = useRef(), orbRef = useRef(), spin = useRef(0), parts = useRef([]), ripples = useRef([]), flash = useRef(0)
+  const [war, setWar] = useState(false)
+  const prevTension = useRef(0), warCooldown = useRef(0)
+  const [joy, setJoy] = useState(false)
+  const prevWarmth = useRef(0), joyCooldown = useRef(0)
 
   // fire an expanding ring + kick the orb whenever a message lands
   const emitPulse = mood => {
@@ -312,8 +316,22 @@ export default function App() {
       if (c.width !== w * dpr || c.height !== h * dpr) { c.width = w * dpr; c.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0) }
       return [w, h]
     }
-    const loop = () => {
+    const loop = t => {
       const m = music.getMood()
+      // when tension spikes across the threshold, the room goes to WAR
+      if (m.tension > 0.7 && prevTension.current <= 0.7 && t > warCooldown.current) {
+        warCooldown.current = t + 7000
+        setWar(true)
+        setTimeout(() => setWar(false), 2800)
+      }
+      prevTension.current = m.tension
+      // when warmth blooms across the threshold, bunnies and unicorns descend
+      if (m.warmth > 0.8 && prevWarmth.current <= 0.8 && t > joyCooldown.current) {
+        joyCooldown.current = t + 7000
+        setJoy(true)
+        setTimeout(() => setJoy(false), 3200)
+      }
+      prevWarmth.current = m.warmth
       for (const [k] of AXIS_META) {
         const el = barRefs.current[k]
         if (el) el.style.width = `${(m[k] * 100).toFixed(1)}%`
@@ -360,7 +378,49 @@ export default function App() {
   }, [started])
 
   return (
-    <div className="shell">
+    <div className={war ? 'shell war-shake' : 'shell'}>
+      {war && (
+        <div className="war" aria-hidden="true">
+          <div className="war-flash" />
+          <div className="war-row war-row-dragons">
+            {['🐉', '🔥', '🐉', '🔥', '🐉', '🔥', '🐉', '🔥'].map((e, i) => (
+              <span key={i} style={{ animationDelay: `${i * 0.12}s` }}>{e}</span>
+            ))}
+          </div>
+          <div className="war-title">⚔️ WAR ⚔️</div>
+          <div className="war-row war-row-army">
+            {['⚔️', '🛡️', '🏹', '⚔️', '🛡️', '🏹', '⚔️', '🛡️'].map((e, i) => (
+              <span key={i} style={{ animationDelay: `${i * 0.1}s` }}>{e}</span>
+            ))}
+          </div>
+          <div className="war-blasts">
+            {['💥', '🔥', '💥', '⚡', '💥', '🔥', '⚡', '💥'].map((e, i) => (
+              <span key={i} style={{ left: `${8 + i * 11}%`, animationDelay: `${(i % 4) * 0.18}s` }}>{e}</span>
+            ))}
+          </div>
+        </div>
+      )}
+      {joy && (
+        <div className="joy" aria-hidden="true">
+          <div className="joy-glow" />
+          <div className="joy-title">🌈 so wholesome 🌈</div>
+          <div className="joy-float">
+            {['🐰', '🦄', '💖', '🌈', '✨', '🐰', '🦄', '🌸', '💫', '🐰', '🦄', '💖', '✨', '🌷', '🐰', '🦄'].map((e, i) => (
+              <span
+                key={i}
+                style={{
+                  left: `${(i * 61) % 96 + 2}%`,
+                  fontSize: `${34 + (i % 4) * 16}px`,
+                  animationDelay: `${(i % 6) * 0.28}s`,
+                  animationDuration: `${2.6 + (i % 5) * 0.4}s`,
+                }}
+              >
+                {e}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="backdrop" aria-hidden="true">
         {AXIS_META.map(([k], i) => (
           <div key={k} className="layer" style={{ backgroundImage: `url(/bg/${k}.svg)` }} ref={el => (bgRefs.current[i] = el)} />
