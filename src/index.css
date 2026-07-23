@@ -295,3 +295,36 @@ main { flex: 1; display: flex; gap: 16px; padding: 16px 20px 20px; min-height: 0
 }
 @keyframes joy-rise { from { transform: translateY(0) rotate(-8deg); opacity: 0; } 12% { opacity: 1; } 90% { opacity: 1; } to { transform: translateY(-118vh) rotate(10deg); opacity: 0; } }
 @keyframes joy-sway { 0%, 100% { margin-left: 0; } 50% { margin-left: 34px; } }
+
+/* 💅 SASS — struts and side-eye when the passive-aggression curdles */
+.sass {
+  position: fixed; inset: 0; z-index: 195; pointer-events: none; overflow: hidden;
+  animation: war-in 0.22s ease-out;
+}
+.sass-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(200, 120, 255, 0.28), rgba(150, 60, 200, 0.16) 55%, transparent 78%);
+  animation: joy-fade 3.2s ease-in-out forwards;
+}
+.sass-title {
+  position: absolute; top: 40%; left: 0; right: 0; text-align: center;
+  font-family: Georgia, serif; font-weight: 700;
+  font-size: clamp(26px, 5.5vw, 68px); color: #fff;
+  text-shadow: 0 0 18px rgba(210, 120, 255, 0.9), 0 3px 0 rgba(90, 20, 130, 0.6);
+  animation: sass-title 3.2s ease-in-out forwards;
+}
+.sass-title i { font-style: italic; text-decoration: underline; }
+@keyframes sass-title {
+  0% { transform: translateX(-40px) rotate(-3deg); opacity: 0; }
+  16% { transform: translateX(6px) rotate(2deg); opacity: 1; }
+  24% { transform: translateX(0) rotate(0); }
+  70% { opacity: 1; } 100% { opacity: 0; transform: translateX(30px); }
+}
+
+.sass-strut { position: absolute; display: flex; gap: 3vw; font-size: clamp(38px, 8vw, 110px); white-space: nowrap; }
+.sass-strut span { display: inline-block; filter: drop-shadow(0 0 12px rgba(210, 120, 255, 0.85)); animation: sass-flip 0.5s ease-in-out infinite; }
+.sass-strut-top { top: 10%; animation: sass-walk-right 3.2s ease-in-out; }
+.sass-strut-bottom { bottom: 10%; animation: sass-walk-left 3.2s ease-in-out; }
+@keyframes sass-walk-right { from { transform: translateX(-70vw); } to { transform: translateX(170vw); } }
+@keyframes sass-walk-left { from { transform: translateX(70vw); } to { transform: translateX(-170vw); } }
+@keyframes sass-flip { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-10px) rotate(8deg); } }

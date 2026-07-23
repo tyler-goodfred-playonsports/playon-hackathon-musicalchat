@@ -190,6 +190,8 @@ export default function App() {
   const prevTension = useRef(0), warCooldown = useRef(0)
   const [joy, setJoy] = useState(false)
   const prevWarmth = useRef(0), joyCooldown = useRef(0)
+  const [sass, setSass] = useState(false)
+  const prevPa = useRef(0), sassCooldown = useRef(0)
 
   // fire an expanding ring + kick the orb whenever a message lands
   const emitPulse = mood => {
@@ -332,6 +334,13 @@ export default function App() {
         setTimeout(() => setJoy(false), 3200)
       }
       prevWarmth.current = m.warmth
+      // when the passive-aggression curdles across the threshold, sass galore
+      if (m.passiveAggression > 0.75 && prevPa.current <= 0.75 && t > sassCooldown.current) {
+        sassCooldown.current = t + 7000
+        setSass(true)
+        setTimeout(() => setSass(false), 3200)
+      }
+      prevPa.current = m.passiveAggression
       for (const [k] of AXIS_META) {
         const el = barRefs.current[k]
         if (el) el.style.width = `${(m[k] * 100).toFixed(1)}%`
@@ -417,6 +426,22 @@ export default function App() {
               >
                 {e}
               </span>
+            ))}
+          </div>
+        </div>
+      )}
+      {sass && (
+        <div className="sass" aria-hidden="true">
+          <div className="sass-glow" />
+          <div className="sass-title">💅 oh, we&rsquo;re doing <i>this</i> 💅</div>
+          <div className="sass-strut sass-strut-top">
+            {['💅', '🙄', '💁', '☕', '👀', '😏', '💅', '🙄', '💁', '☕'].map((e, i) => (
+              <span key={i} style={{ animationDelay: `${i * 0.14}s` }}>{e}</span>
+            ))}
+          </div>
+          <div className="sass-strut sass-strut-bottom">
+            {['😒', '💁‍♀️', '🍵', '✋', '💅', '🙄', '😏', '👀', '🍵', '💅'].map((e, i) => (
+              <span key={i} style={{ animationDelay: `${i * 0.12}s` }}>{e}</span>
             ))}
           </div>
         </div>
