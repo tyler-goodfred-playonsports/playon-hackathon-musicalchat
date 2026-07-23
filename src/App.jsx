@@ -382,7 +382,7 @@ export default function App() {
       <header>
         <div>
           <b># pr-review-4821</b>
-          <span className="muted">PR #4821 · refactor favorites-service · 5 members</span>
+          <span className="muted">PR #4821 · refactor favorites-service · 6 members</span>
         </div>
         <div className="brand">🎼 Undertones</div>
       </header>

@@ -10,8 +10,8 @@ export { hasApiKey }
 
 // Keep in sync with CAST in src/conversation.js. 'you' is the human — the bot
 // never speaks as them, so they're excluded from the reply roster.
-const NAMES = { alex: 'Alex Rivera', sam: 'Sam Chen', steph: 'Stephanie Wu', mark: 'Mark Okafor', you: 'You' }
-const REVIEWERS = ['alex', 'sam', 'steph', 'mark']
+const NAMES = { tyler: 'Tyler', aswani: 'Aswani', robb: 'Robb', ajay: 'Ajay', noah: 'Noah', you: 'You' }
+const REVIEWERS = ['tyler', 'aswani', 'robb', 'ajay', 'noah']
 
 const clamp01 = v => Math.min(1, Math.max(0, Number(v) || 0))
 
@@ -36,10 +36,11 @@ const SYSTEM =
   'Slack-like: 1–2 sentences, casual, an occasional emoji. Then score the message\'s emotional ' +
   'subtext on four 0–1 axes (warmth, concern, tension, passiveAggression).\n\n' +
   'The reviewers:\n' +
-  '- alex (Alex Rivera): the PR author. Earnest and collaborative; a little defensive when the design is questioned.\n' +
-  '- sam (Sam Chen): lead reviewer. Warm at first, raises sharp technical concerns, can turn pointed or passive-aggressive under stress.\n' +
-  '- steph (Stephanie Wu): senior stakeholder. Terse, cool, quietly passive-aggressive (think a one-word "Following.").\n' +
-  '- mark (Mark Okafor): stakeholder. Diplomatic but firm, process- and alignment-focused.\n\n' +
+  '- tyler: the PR author. Earnest and collaborative; a little defensive when the design is questioned.\n' +
+  '- aswani: lead reviewer. Warm at first, raises sharp technical concerns, can turn pointed or passive-aggressive under stress.\n' +
+  '- robb: senior stakeholder. Terse, cool, quietly passive-aggressive (think a one-word "Following.").\n' +
+  '- ajay: stakeholder. Diplomatic but firm, process- and alignment-focused.\n' +
+  '- noah: engaged teammate. Curious, asks clarifying questions, keeps things constructive.\n\n' +
   'Pick whoever would most naturally speak next. Never write as "You" (the human).'
 
 let client
@@ -64,7 +65,7 @@ export async function generateReply({ messages }) {
 
   const block = res.content.find(b => b.type === 'text')
   const raw = JSON.parse(block.text)
-  const who = REVIEWERS.includes(raw.who) ? raw.who : 'sam'
+  const who = REVIEWERS.includes(raw.who) ? raw.who : 'aswani'
   return {
     who,
     text: String(raw.text || '').slice(0, 500),

@@ -104,32 +104,34 @@ const topAxis = m => Object.keys(m).reduce((a, b) => (m[b] > m[a] ? b : a))
 
 // who tends to speak per dominant mood, and their canned in-character lines
 const MOCK_SPEAKERS = {
-  warmth: ['sam', 'alex', 'steph', 'mark'],
-  concern: ['sam', 'mark', 'alex'],
-  tension: ['sam', 'alex', 'mark'],
-  passiveAggression: ['steph', 'mark', 'sam'],
+  warmth: ['aswani', 'tyler', 'noah', 'robb', 'ajay'],
+  concern: ['aswani', 'noah', 'ajay', 'tyler'],
+  tension: ['aswani', 'tyler', 'ajay'],
+  passiveAggression: ['robb', 'ajay', 'aswani'],
 }
 const MOCK_LINES = {
   warmth: {
-    sam: ['love it, this is exactly the direction i was hoping for 🙌', 'clean and readable — really nice work'],
-    alex: ['glad it lands! happy to walk through any of the moves 😄', 'appreciate that — this one was fun to write'],
-    steph: ['nice work on this.', 'looks good 👍'],
-    mark: ['solid, and the write-up makes it easy to follow 👍', 'love to see it'],
+    aswani: ['love it, this is exactly the direction i was hoping for 🙌', 'clean and readable — really nice work'],
+    tyler: ['glad it lands! happy to walk through any of the moves 😄', 'appreciate that — this one was fun to write'],
+    noah: ['nice, this is looking great 👀', 'oh i like this a lot'],
+    robb: ['nice work on this.', 'looks good 👍'],
+    ajay: ['solid, and the write-up makes it easy to follow 👍', 'love to see it'],
   },
   concern: {
-    sam: ['wait — does that mean every consumer now depends on the controller?', 'hmm, i want to make sure we’re not coupling these'],
-    mark: ['let’s double-check the layering before this goes further', 'can we align on the boundaries here first?'],
-    alex: ['fair — i wasn’t 100% sure about that part either', 'yeah, that bit i’m less confident on'],
+    aswani: ['wait — does that mean every consumer now depends on the controller?', 'hmm, i want to make sure we’re not coupling these'],
+    noah: ['quick q — how does this handle the edge cases?', 'can someone explain the boundary here?'],
+    ajay: ['let’s double-check the layering before this goes further', 'can we align on the boundaries here first?'],
+    tyler: ['fair — i wasn’t 100% sure about that part either', 'yeah, that bit i’m less confident on'],
   },
   tension: {
-    sam: ['this is a significant change and it’s moving fast', 'we need to slow down and get this right'],
-    alex: ['threading it through three services genuinely felt worse though', 'i hear you, but the alternative was messier'],
-    mark: ['we should not merge this until we’re aligned', 'this needs sign-off before it goes in'],
+    aswani: ['this is a significant change and it’s moving fast', 'we need to slow down and get this right'],
+    tyler: ['threading it through three services genuinely felt worse though', 'i hear you, but the alternative was messier'],
+    ajay: ['we should not merge this until we’re aligned', 'this needs sign-off before it goes in'],
   },
   passiveAggression: {
-    steph: ['Following.', 'Interesting choice.', 'Noted.'],
-    mark: ['per the earlier thread, let’s make sure we’re aligned before merging 🙂', 'just for visibility, adding a few more folks.'],
-    sam: ['sure, if that’s the direction we’re going 🙂', 'as previously mentioned, the layering matters here.'],
+    robb: ['Following.', 'Interesting choice.', 'Noted.'],
+    ajay: ['per the earlier thread, let’s make sure we’re aligned before merging 🙂', 'just for visibility, adding a few more folks.'],
+    aswani: ['sure, if that’s the direction we’re going 🙂', 'as previously mentioned, the layering matters here.'],
   },
 }
 const MOCK_MOOD = {

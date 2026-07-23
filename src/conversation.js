@@ -5,11 +5,12 @@
 // Vercel AI SDK generateObject call per message when live scoring lands.
 
 export const CAST = {
-  alex:  { name: 'Alex Rivera',   initials: 'AR', hue: 158 },
-  sam:   { name: 'Sam Chen',      initials: 'SC', hue: 222 },
-  steph: { name: 'Stephanie Wu',  initials: 'SW', hue: 28 },
-  mark:  { name: 'Mark Okafor',   initials: 'MO', hue: 268 },
-  you:   { name: 'You',           initials: 'YO', hue: 200 },
+  tyler:  { name: 'Tyler',  initials: 'TY', hue: 158 },
+  aswani: { name: 'Aswani', initials: 'AS', hue: 222 },
+  robb:   { name: 'Robb',   initials: 'RB', hue: 28 },
+  ajay:   { name: 'Ajay',   initials: 'AJ', hue: 268 },
+  noah:   { name: 'Noah',   initials: 'NO', hue: 320 },
+  you:    { name: 'You',    initials: 'YO', hue: 200 },
 }
 
 // Movement titles per genre, indexed by the `movement` slot on each beat:
@@ -36,49 +37,53 @@ export const BEATS = [
   {
     movement: 0,
     messages: [
-      { who: 'alex', text: 'morning team ☀️ just opened PR #4821 — the favorites-service refactor. 214 files, but I promise most of it is just moves 😄',
+      { who: 'tyler', text: 'morning team ☀️ just opened PR #4821 — the favorites-service refactor. 214 files, but I promise most of it is just moves 😄',
         mood: { warmth: 0.92, concern: 0.06, tension: 0.03, passiveAggression: 0 } },
-      { who: 'sam', text: 'ooh, been waiting for this one. grabbing a coffee and diving in ☕',
+      { who: 'aswani', text: 'ooh, been waiting for this one. grabbing a coffee and diving in ☕',
         mood: { warmth: 0.86, concern: 0.08, tension: 0.05, passiveAggression: 0 } },
+      { who: 'noah', text: 'nice, following along 👀 excited to see this land',
+        mood: { warmth: 0.85, concern: 0.08, tension: 0.05, passiveAggression: 0 } },
     ],
   },
   {
     movement: 1,
     messages: [
-      { who: 'sam', text: 'first pass: the naming is 💯 and the test coverage is genuinely lovely',
+      { who: 'aswani', text: 'first pass: the naming is 💯 and the test coverage is genuinely lovely',
         mood: { warmth: 0.8, concern: 0.12, tension: 0.08, passiveAggression: 0.02 } },
-      { who: 'sam', text: 'one question though — why does the cache layer live inside the controller now?',
+      { who: 'aswani', text: 'one question though — why does the cache layer live inside the controller now?',
         mood: { warmth: 0.45, concern: 0.55, tension: 0.25, passiveAggression: 0.1 } },
     ],
   },
   {
     movement: 2,
     messages: [
-      { who: 'alex', text: 'it collapsed the DI graph a lot — threading it through three services felt worse tbh',
+      { who: 'tyler', text: 'it collapsed the DI graph a lot — threading it through three services felt worse tbh',
         mood: { warmth: 0.3, concern: 0.4, tension: 0.42, passiveAggression: 0.15 } },
-      { who: 'sam', text: 'hm. it also means every consumer takes a hard dependency on the controller now, right?',
+      { who: 'aswani', text: 'hm. it also means every consumer takes a hard dependency on the controller now, right?',
         mood: { warmth: 0.18, concern: 0.6, tension: 0.58, passiveAggression: 0.35 } },
     ],
   },
   {
     movement: 3,
     messages: [
-      { who: 'sam', text: 'This is a significant architectural change. Adding Stephanie and Mark for visibility.',
+      { who: 'aswani', text: 'This is a significant architectural change. Adding Robb and Ajay for visibility.',
         mood: { warmth: 0.05, concern: 0.55, tension: 0.88, passiveAggression: 0.97 } },
-      { who: 'steph', text: 'Following.',
+      { who: 'robb', text: 'Following.',
         mood: { warmth: 0.05, concern: 0.4, tension: 0.9, passiveAggression: 0.85 } },
-      { who: 'mark', text: "+1. Let's make sure we're aligned on layering before this merges.",
+      { who: 'ajay', text: "+1. Let's make sure we're aligned on layering before this merges.",
         mood: { warmth: 0.08, concern: 0.5, tension: 0.82, passiveAggression: 0.88 } },
+      { who: 'noah', text: 'adding myself too — want to understand the boundaries here.',
+        mood: { warmth: 0.15, concern: 0.55, tension: 0.6, passiveAggression: 0.3 } },
     ],
   },
   {
     movement: 4,
     messages: [
-      { who: 'alex', text: '…totally fair, I should have flagged the design shift up front. want to pair after standup and split this into two PRs?',
+      { who: 'tyler', text: '…totally fair, I should have flagged the design shift up front. want to pair after standup and split this into two PRs?',
         mood: { warmth: 0.6, concern: 0.4, tension: 0.25, passiveAggression: 0.05 } },
-      { who: 'sam', text: 'yes please 🙏 honestly the refactor itself is great — I just want the layering right. sorry if I came in hot 😅',
+      { who: 'aswani', text: 'yes please 🙏 honestly the refactor itself is great — I just want the layering right. sorry if I came in hot 😅',
         mood: { warmth: 0.88, concern: 0.15, tension: 0.08, passiveAggression: 0.02 } },
-      { who: 'steph', text: 'love to see it 💛',
+      { who: 'robb', text: 'love to see it 💛',
         mood: { warmth: 0.95, concern: 0.05, tension: 0.02, passiveAggression: 0 } },
     ],
   },
@@ -89,14 +94,14 @@ export const CODA = [
   {
     movement: 5,
     messages: [
-      { who: 'sam', text: '🎻 (the orchestra takes a bow)',
+      { who: 'aswani', text: '🎻 (the orchestra takes a bow)',
         mood: { warmth: 0.9, concern: 0.05, tension: 0.03, passiveAggression: 0 } },
     ],
   },
   {
     movement: 5,
     messages: [
-      { who: 'alex', text: 'encore tomorrow — same thread, new PR 😄',
+      { who: 'tyler', text: 'encore tomorrow — same thread, new PR 😄',
         mood: { warmth: 0.9, concern: 0.05, tension: 0.03, passiveAggression: 0 } },
     ],
   },
