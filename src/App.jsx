@@ -324,6 +324,7 @@ export default function App() {
       if (m.tension > 0.7 && prevTension.current <= 0.7 && t > warCooldown.current) {
         warCooldown.current = t + 7000
         setWar(true)
+        music.stinger('war')
         setTimeout(() => setWar(false), 2800)
       }
       prevTension.current = m.tension
@@ -331,6 +332,7 @@ export default function App() {
       if (m.warmth > 0.8 && prevWarmth.current <= 0.8 && t > joyCooldown.current) {
         joyCooldown.current = t + 7000
         setJoy(true)
+        music.stinger('joy')
         setTimeout(() => setJoy(false), 3200)
       }
       prevWarmth.current = m.warmth
@@ -338,6 +340,7 @@ export default function App() {
       if (m.passiveAggression > 0.75 && prevPa.current <= 0.75 && t > sassCooldown.current) {
         sassCooldown.current = t + 7000
         setSass(true)
+        music.stinger('sass')
         setTimeout(() => setSass(false), 3200)
       }
       prevPa.current = m.passiveAggression

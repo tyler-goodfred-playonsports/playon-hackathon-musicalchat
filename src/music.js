@@ -274,3 +274,70 @@ function thump(t, vel) {
   o.start(t)
   o.stop(t + 1.2)
 }
+
+// ---- one-shot stingers for the takeover events ---------------------------
+// Fired from the UI when a mood spikes hard. Routed straight to master so they
+// land the same in both the synth and stems backends.
+
+function ping(freq, t, dur, { type = 'sawtooth', vel = 0.3, dest = master, detune = 0, attack = 0.01 } = {}) {
+  const o = ctx.createOscillator()
+  o.type = type
+  o.frequency.setValueAtTime(freq, t)
+  o.detune.value = detune
+  const g = ctx.createGain()
+  g.gain.setValueAtTime(0.0001, t)
+  g.gain.linearRampToValueAtTime(vel, t + attack)
+  g.gain.setTargetAtTime(0.0001, t + attack, dur * 0.5)
+  o.connect(g)
+  g.connect(dest)
+  o.start(t)
+  o.stop(t + dur + 0.4)
+  return o
+}
+
+// low brass blast + a timpani roll — the room goes to war
+function warStinger(now) {
+  for (const m of [36, 43, 48]) {
+    ping(hz(m), now, 1.0, { vel: 0.13, detune: -8, attack: 0.02 })
+    ping(hz(m), now, 1.0, { vel: 0.13, detune: 8, attack: 0.02 })
+  }
+  thump(now, 0.7); thump(now + 0.17, 0.4); thump(now + 0.32, 0.75)
+}
+
+// bright ascending harp gliss with a shimmering tail — pure wholesome
+function joyStinger(now) {
+  const scale = [62, 66, 69, 74, 78, 81, 86, 90] // D-major pentatonic climb
+  scale.forEach((m, i) => ping(hz(m), now + i * 0.055, 0.6, { type: 'triangle', vel: 0.17, attack: 0.004 }))
+  ping(hz(93), now + scale.length * 0.055, 1.4, { type: 'sine', vel: 0.12 })
+}
+
+// sad-trombone wah-wah with a deflating downward bend — the shade of it all
+function sassStinger(now) {
+  const wah = ctx.createBiquadFilter()
+  wah.type = 'lowpass'
+  wah.frequency.value = 950
+  wah.Q.value = 4
+  wah.connect(master)
+  ;[58, 57, 56].forEach((m, i) => ping(hz(m), now + i * 0.22, 0.2, { vel: 0.22, dest: wah, attack: 0.02 }))
+  const t = now + 0.66 // the final womp bends down and gives up
+  const o = ctx.createOscillator()
+  o.type = 'sawtooth'
+  o.frequency.setValueAtTime(hz(55), t)
+  o.frequency.exponentialRampToValueAtTime(hz(47), t + 0.7)
+  const g = ctx.createGain()
+  g.gain.setValueAtTime(0.0001, t)
+  g.gain.linearRampToValueAtTime(0.24, t + 0.03)
+  g.gain.setTargetAtTime(0.0001, t + 0.4, 0.3)
+  o.connect(g)
+  g.connect(wah)
+  o.start(t)
+  o.stop(t + 1.3)
+}
+
+export function stinger(kind) {
+  if (!ctx) return
+  const now = ctx.currentTime
+  if (kind === 'war') warStinger(now)
+  else if (kind === 'joy') joyStinger(now)
+  else if (kind === 'sass') sassStinger(now)
+}
