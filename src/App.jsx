@@ -12,6 +12,14 @@ const AXIS_META = [
 
 const ZERO = new Uint8Array(32) // fallback spectrum so the visuals draw even before/without audio
 
+const GENRE_META = {
+  classical: ['🎻', 'Classical'], edm: ['🎛️', 'EDM'], country: ['🤠', 'Country'],
+  jazz: ['🎷', 'Jazz'], cinematic: ['🎬', 'Cinematic'], lofi: ['☕', 'Lo-fi'],
+  metal: ['🤘', 'Metal'], chiptune: ['👾', '8-bit'], muzak: ['🛗', 'Elevator Music'],
+  western: ['🌵', 'Western'], bossa: ['🍹', 'Bossa Nova'], synthwave: ['🌆', 'Synthwave'],
+  reggae: ['🌴', 'Reggae'],
+}
+
 function dominantAxis(mood) {
   let best = AXIS_META[0]
   for (const m of AXIS_META) if (mood[m[0]] > mood[best[0]]) best = m
@@ -390,12 +398,27 @@ export default function App() {
           <h2>♪ The Score</h2>
           <div className="movement">{movement}</div>
           {genres.length > 0 && (
-            <label className="genre">
-              <span>Genre</span>
-              <select value={genre} onChange={e => pickGenre(e.target.value)}>
-                {genres.map(g => <option key={g} value={g}>{g}</option>)}
-              </select>
-            </label>
+            <div className="genre">
+              <span>Genre · <b>{GENRE_META[genre]?.[1] || genre}</b></span>
+              <div className="genre-grid">
+                {genres.map(g => {
+                  const [emoji, label] = GENRE_META[g] || ['🎵', g]
+                  return (
+                    <button
+                      key={g}
+                      type="button"
+                      className={g === genre ? 'on' : ''}
+                      onClick={() => pickGenre(g)}
+                      title={label}
+                      aria-label={label}
+                      aria-pressed={g === genre}
+                    >
+                      {emoji}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
           )}
           <div className="eq">{Array.from({ length: 7 }, (_, i) => <span key={i} ref={el => (eqRefs.current[i] = el)} />)}</div>
           {AXIS_META.map(([k, label, hsl]) => (

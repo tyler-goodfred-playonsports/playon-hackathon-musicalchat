@@ -155,19 +155,30 @@ main { flex: 1; display: flex; gap: 16px; padding: 16px 20px 20px; min-height: 0
   transform: scaleY(0.08);
   transform-origin: bottom;
 }
-.genre { display: flex; flex-direction: column; gap: 5px; }
-.genre span { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(232, 234, 240, 0.55); }
-.genre select {
-  padding: 7px 10px;
-  border-radius: 8px;
+.genre { display: flex; flex-direction: column; gap: 8px; }
+.genre > span { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(232, 234, 240, 0.55); }
+.genre > span b { color: rgba(232, 234, 240, 0.9); }
+.genre-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+.genre-grid button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: inherit;
-  font: inherit;
-  font-size: 13px;
-  text-transform: capitalize;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 16px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
-.genre select option { background: #191c26; }
+.genre-grid button:hover { transform: translateY(-1px); background: rgba(255, 255, 255, 0.1); }
+.genre-grid button.on {
+  border-color: #ff7ab0;
+  background: color-mix(in oklab, #ff7ab0 18%, transparent);
+  box-shadow: 0 0 12px -2px #ff7ab0;
+}
 .meter span { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(232, 234, 240, 0.55); }
 .track { margin-top: 5px; height: 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
 .fill { height: 100%; width: 0; border-radius: inherit; }
