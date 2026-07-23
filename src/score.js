@@ -49,7 +49,7 @@ export function scoreMessage(text, base = NEUTRAL) {
 export async function scoreMessageAI(text, base = NEUTRAL) {
   if (mockEnabled()) return scoreMessage(text, base) // demo mode: heuristic stands in for the AI
   const ctrl = new AbortController()
-  const timer = setTimeout(() => ctrl.abort(), 1500)
+  const timer = setTimeout(() => ctrl.abort(), 4000)
   try {
     const res = await fetch('/api/turn', {
       method: 'POST',
