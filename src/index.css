@@ -215,3 +215,118 @@ main { flex: 1; display: flex; gap: 16px; padding: 16px 20px 20px; min-height: 0
 .card .note { margin: 18px 0 0; font-size: 12px; color: rgba(232, 234, 240, 0.45); }
 
 @media (max-width: 880px) { .score { display: none; } }
+
+/* ⚔️ WAR — full-screen takeover when tension spikes across the threshold */
+.war {
+  position: fixed; inset: 0; z-index: 200; pointer-events: none; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  animation: war-in 0.18s ease-out;
+}
+@keyframes war-in { from { opacity: 0; } to { opacity: 1; } }
+
+.war-flash {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 60, 30, 0.55), rgba(120, 0, 0, 0.85) 70%, rgba(40, 0, 0, 0.95));
+  animation: war-flash 0.45s steps(2) 3, war-fade 2.8s ease-in forwards;
+}
+@keyframes war-flash { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+@keyframes war-fade { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+
+.war-title {
+  position: relative; font-family: 'Impact', Georgia, serif; font-weight: 900;
+  font-size: clamp(60px, 16vw, 220px); letter-spacing: 0.06em;
+  color: #fff; text-shadow: 0 0 24px #ff3c1e, 0 0 60px #ff0000, 0 6px 0 #7a0000;
+  animation: war-punch 0.5s cubic-bezier(0.2, 1.6, 0.3, 1), war-throb 0.32s ease-in-out infinite 0.5s;
+}
+@keyframes war-punch { 0% { transform: scale(0.2) rotate(-8deg); opacity: 0; } 60% { transform: scale(1.25) rotate(3deg); opacity: 1; } 100% { transform: scale(1) rotate(0); } }
+@keyframes war-throb { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+
+.war-row { position: absolute; display: flex; gap: 3vw; font-size: clamp(40px, 9vw, 120px); white-space: nowrap; }
+.war-row span { display: inline-block; filter: drop-shadow(0 0 14px rgba(255, 80, 30, 0.9)); }
+.war-row-dragons { top: 8%; animation: war-march-left 2.6s linear; }
+.war-row-dragons span { animation: war-flap 0.28s ease-in-out infinite; }
+.war-row-army { bottom: 8%; animation: war-march-right 2.6s linear; }
+.war-row-army span { animation: war-stomp 0.3s ease-in-out infinite; }
+@keyframes war-march-left { from { transform: translateX(60vw); } to { transform: translateX(-160vw); } }
+@keyframes war-march-right { from { transform: translateX(-60vw); } to { transform: translateX(160vw); } }
+@keyframes war-flap { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-12px) rotate(4deg); } }
+@keyframes war-stomp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.war-blasts { position: absolute; inset: 0; }
+.war-blasts span {
+  position: absolute; top: 50%; font-size: clamp(30px, 7vw, 90px);
+  animation: war-blast 0.7s ease-out infinite;
+}
+@keyframes war-blast { 0% { transform: translateY(-50%) scale(0.2); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(-50%) scale(1.8); opacity: 0; } }
+
+.war-shake { animation: war-shake 0.09s linear infinite; }
+@keyframes war-shake {
+  0% { transform: translate(0, 0); } 25% { transform: translate(-6px, 4px); }
+  50% { transform: translate(5px, -5px); } 75% { transform: translate(-4px, -3px); }
+  100% { transform: translate(4px, 5px); }
+}
+
+/* 🌈 JOY — bunnies and unicorns float up when warmth blooms */
+.joy {
+  position: fixed; inset: 0; z-index: 190; pointer-events: none; overflow: hidden;
+  animation: war-in 0.3s ease-out;
+}
+.joy-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 60%, rgba(255, 190, 235, 0.35), rgba(190, 220, 255, 0.18) 55%, transparent 78%);
+  animation: joy-fade 3.2s ease-in-out forwards;
+}
+@keyframes joy-fade { 0% { opacity: 0; } 20%, 65% { opacity: 1; } 100% { opacity: 0; } }
+
+.joy-title {
+  position: absolute; top: 12%; left: 0; right: 0; text-align: center;
+  font-family: Georgia, serif; font-style: italic; font-weight: 700;
+  font-size: clamp(28px, 6vw, 72px); color: #fff;
+  text-shadow: 0 0 18px rgba(255, 150, 220, 0.9), 0 0 40px rgba(180, 200, 255, 0.7);
+  animation: joy-title 3.2s ease-in-out forwards;
+}
+@keyframes joy-title { 0% { transform: scale(0.6) translateY(20px); opacity: 0; } 18% { transform: scale(1.08); opacity: 1; } 30%, 70% { transform: scale(1); opacity: 1; } 100% { opacity: 0; } }
+
+.joy-float span {
+  position: absolute; bottom: -12%; display: inline-block;
+  filter: drop-shadow(0 0 12px rgba(255, 180, 230, 0.8));
+  animation-name: joy-rise, joy-sway;
+  animation-timing-function: ease-in, ease-in-out;
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: forwards;
+}
+@keyframes joy-rise { from { transform: translateY(0) rotate(-8deg); opacity: 0; } 12% { opacity: 1; } 90% { opacity: 1; } to { transform: translateY(-118vh) rotate(10deg); opacity: 0; } }
+@keyframes joy-sway { 0%, 100% { margin-left: 0; } 50% { margin-left: 34px; } }
+
+/* 💅 SASS — struts and side-eye when the passive-aggression curdles */
+.sass {
+  position: fixed; inset: 0; z-index: 195; pointer-events: none; overflow: hidden;
+  animation: war-in 0.22s ease-out;
+}
+.sass-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(200, 120, 255, 0.28), rgba(150, 60, 200, 0.16) 55%, transparent 78%);
+  animation: joy-fade 3.2s ease-in-out forwards;
+}
+.sass-title {
+  position: absolute; top: 40%; left: 0; right: 0; text-align: center;
+  font-family: Georgia, serif; font-weight: 700;
+  font-size: clamp(26px, 5.5vw, 68px); color: #fff;
+  text-shadow: 0 0 18px rgba(210, 120, 255, 0.9), 0 3px 0 rgba(90, 20, 130, 0.6);
+  animation: sass-title 3.2s ease-in-out forwards;
+}
+.sass-title i { font-style: italic; text-decoration: underline; }
+@keyframes sass-title {
+  0% { transform: translateX(-40px) rotate(-3deg); opacity: 0; }
+  16% { transform: translateX(6px) rotate(2deg); opacity: 1; }
+  24% { transform: translateX(0) rotate(0); }
+  70% { opacity: 1; } 100% { opacity: 0; transform: translateX(30px); }
+}
+
+.sass-strut { position: absolute; display: flex; gap: 3vw; font-size: clamp(38px, 8vw, 110px); white-space: nowrap; }
+.sass-strut span { display: inline-block; filter: drop-shadow(0 0 12px rgba(210, 120, 255, 0.85)); animation: sass-flip 0.5s ease-in-out infinite; }
+.sass-strut-top { top: 10%; animation: sass-walk-right 3.2s ease-in-out; }
+.sass-strut-bottom { bottom: 10%; animation: sass-walk-left 3.2s ease-in-out; }
+@keyframes sass-walk-right { from { transform: translateX(-70vw); } to { transform: translateX(170vw); } }
+@keyframes sass-walk-left { from { transform: translateX(70vw); } to { transform: translateX(-170vw); } }
+@keyframes sass-flip { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-10px) rotate(8deg); } }
