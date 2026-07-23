@@ -4,8 +4,8 @@ import { CAST, BEATS, CODA, delayFor } from './conversation'
 import { scoreMessage } from './score'
 
 const AXIS_META = [
-  ['warmth', 'Warmth', '38 92% 60%'],
-  ['concern', 'Concern', '212 92% 64%'],
+  ['warmth', 'Warmth', '145 75% 52%'],
+  ['concern', 'Concern', '48 92% 58%'],
   ['tension', 'Tension', '352 90% 60%'],
   ['passiveAggression', 'Passive aggression', '272 85% 68%'],
 ]

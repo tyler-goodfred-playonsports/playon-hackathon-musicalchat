@@ -1,19 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0a1220"/>
-      <stop offset="0.6" stop-color="#1d3350"/>
-      <stop offset="1" stop-color="#3f6288"/>
+      <stop offset="0" stop-color="#221a06"/>
+      <stop offset="0.6" stop-color="#574414"/>
+      <stop offset="1" stop-color="#8a7020"/>
     </linearGradient>
     <radialGradient id="haze">
-      <stop offset="0" stop-color="#cfe3f5" stop-opacity="0.8"/>
-      <stop offset="1" stop-color="#cfe3f5" stop-opacity="0"/>
+      <stop offset="0" stop-color="#f7e6a3" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#f7e6a3" stop-opacity="0"/>
     </radialGradient>
   </defs>
   <rect width="1600" height="900" fill="url(#sky)"/>
   <circle cx="420" cy="380" r="260" fill="url(#haze)"/>
-  <circle cx="420" cy="380" r="60" fill="#d8e8f7" opacity="0.85"/>
-  <path d="M0 660 L 350 540 L 700 660 L 1050 560 L 1400 680 L 1600 620 V900 H0 Z" fill="#16263c"/>
-  <path d="M0 780 L 450 680 L 900 790 L 1300 700 L 1600 780 V900 H0 Z" fill="#0e1a2c"/>
-  <rect y="600" width="1600" height="130" fill="#9fc0dd" opacity="0.12"/>
+  <circle cx="420" cy="380" r="60" fill="#f2dfa0" opacity="0.85"/>
+  <path d="M0 660 L 350 540 L 700 660 L 1050 560 L 1400 680 L 1600 620 V900 H0 Z" fill="#3a2e10"/>
+  <path d="M0 780 L 450 680 L 900 790 L 1300 700 L 1600 780 V900 H0 Z" fill="#241c08"/>
+  <rect y="600" width="1600" height="130" fill="#e6cf7d" opacity="0.14"/>
 </svg>
