@@ -168,6 +168,8 @@ export default function App() {
   const [typing, setTyping] = useState(null)
   const [movement, setMovement] = useState('— tuning —')
   const [text, setText] = useState('')
+  const [genres, setGenres] = useState([])
+  const [genre, setGenre] = useState('classical')
   const beat = useRef(0), busy = useRef(false), coda = useRef(0)
   const clock = useRef(Date.parse('2026-07-23T09:12:00'))
   const feedRef = useRef(), tintRef = useRef(), barRefs = useRef({}), eqRefs = useRef([]), bgRefs = useRef([])
@@ -225,6 +227,19 @@ export default function App() {
     if (busy.current) return
     if (b) { beat.current++; playBeat(b) }
     else playBeat(CODA[coda.current++ % CODA.length])
+  }
+
+  // discover which stem genres have been generated (public/music/genres.json)
+  useEffect(() => {
+    fetch('/music/genres.json')
+      .then(r => (r.ok && (r.headers.get('content-type') || '').includes('json') ? r.json() : []))
+      .then(setGenres)
+      .catch(() => {})
+  }, [])
+
+  async function pickGenre(g) {
+    setGenre(g)
+    await music.setGenre(g)
   }
 
   // smooth-scroll the feed as messages land
@@ -341,6 +356,14 @@ export default function App() {
         <aside className="score">
           <h2>♪ The Score</h2>
           <div className="movement">{movement}</div>
+          {genres.length > 0 && (
+            <label className="genre">
+              <span>Genre</span>
+              <select value={genre} onChange={e => pickGenre(e.target.value)}>
+                {genres.map(g => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </label>
+          )}
           <div className="eq">{Array.from({ length: 7 }, (_, i) => <span key={i} ref={el => (eqRefs.current[i] = el)} />)}</div>
           {AXIS_META.map(([k, label, hsl]) => (
             <div className="meter" key={k}>

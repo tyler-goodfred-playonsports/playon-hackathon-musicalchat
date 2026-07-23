@@ -1,0 +1,38 @@
+[
+  {
+    "file": "/music/jazz/i-pastorale.mp3",
+    "mood": {
+      "warmth": 0.9,
+      "concern": 0.08,
+      "tension": 0.04,
+      "passiveAggression": 0
+    }
+  },
+  {
+    "file": "/music/jazz/ii-inquieto.mp3",
+    "mood": {
+      "warmth": 0.45,
+      "concern": 0.55,
+      "tension": 0.25,
+      "passiveAggression": 0.1
+    }
+  },
+  {
+    "file": "/music/jazz/iii-furioso.mp3",
+    "mood": {
+      "warmth": 0.05,
+      "concern": 0.5,
+      "tension": 0.9,
+      "passiveAggression": 0.95
+    }
+  },
+  {
+    "file": "/music/jazz/iv-riconciliazione.mp3",
+    "mood": {
+      "warmth": 0.85,
+      "concern": 0.15,
+      "tension": 0.08,
+      "passiveAggression": 0
+    }
+  }
+]
