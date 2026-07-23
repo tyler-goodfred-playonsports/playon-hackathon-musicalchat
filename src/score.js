@@ -47,6 +47,7 @@ export function scoreMessage(text, base = NEUTRAL) {
 // scored mood, or null on any failure/timeout — the caller keeps the instant
 // heuristic so the demo never blocks or breaks when the network/key is absent.
 export async function scoreMessageAI(text, base = NEUTRAL) {
+  if (mockEnabled()) return scoreMessage(text, base) // demo mode: heuristic stands in for the AI
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), 1500)
   try {
@@ -70,6 +71,7 @@ export async function scoreMessageAI(text, base = NEUTRAL) {
 // Live chatbot reply via /api/reply — returns { who, text, mood } or null on any
 // failure/timeout, so the caller falls back to the scripted conversation.
 export async function generateReply(messages) {
+  if (mockEnabled()) return mockReply(messages) // demo mode: locally synthesized reply
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), 7000)
   try {
@@ -88,6 +90,65 @@ export async function generateReply(messages) {
   } finally {
     clearTimeout(timer)
   }
+}
+
+// ---- Demo mock mode -------------------------------------------------------
+// Add ?mock to the URL to preview the live features WITHOUT an API key: replies
+// are synthesized locally, in-character, reacting to your message's tone. This
+// never affects the real no-key path (which stays scripted + heuristic).
+export const mockEnabled = () =>
+  typeof location !== 'undefined' && new URLSearchParams(location.search).has('mock')
+
+const wait = ms => new Promise(r => setTimeout(r, ms))
+const topAxis = m => Object.keys(m).reduce((a, b) => (m[b] > m[a] ? b : a))
+
+// who tends to speak per dominant mood, and their canned in-character lines
+const MOCK_SPEAKERS = {
+  warmth: ['sam', 'alex', 'steph', 'mark'],
+  concern: ['sam', 'mark', 'alex'],
+  tension: ['sam', 'alex', 'mark'],
+  passiveAggression: ['steph', 'mark', 'sam'],
+}
+const MOCK_LINES = {
+  warmth: {
+    sam: ['love it, this is exactly the direction i was hoping for 🙌', 'clean and readable — really nice work'],
+    alex: ['glad it lands! happy to walk through any of the moves 😄', 'appreciate that — this one was fun to write'],
+    steph: ['nice work on this.', 'looks good 👍'],
+    mark: ['solid, and the write-up makes it easy to follow 👍', 'love to see it'],
+  },
+  concern: {
+    sam: ['wait — does that mean every consumer now depends on the controller?', 'hmm, i want to make sure we’re not coupling these'],
+    mark: ['let’s double-check the layering before this goes further', 'can we align on the boundaries here first?'],
+    alex: ['fair — i wasn’t 100% sure about that part either', 'yeah, that bit i’m less confident on'],
+  },
+  tension: {
+    sam: ['this is a significant change and it’s moving fast', 'we need to slow down and get this right'],
+    alex: ['threading it through three services genuinely felt worse though', 'i hear you, but the alternative was messier'],
+    mark: ['we should not merge this until we’re aligned', 'this needs sign-off before it goes in'],
+  },
+  passiveAggression: {
+    steph: ['Following.', 'Interesting choice.', 'Noted.'],
+    mark: ['per the earlier thread, let’s make sure we’re aligned before merging 🙂', 'just for visibility, adding a few more folks.'],
+    sam: ['sure, if that’s the direction we’re going 🙂', 'as previously mentioned, the layering matters here.'],
+  },
+}
+const MOCK_MOOD = {
+  warmth: { warmth: 0.85, concern: 0.1, tension: 0.05, passiveAggression: 0.02 },
+  concern: { warmth: 0.3, concern: 0.7, tension: 0.28, passiveAggression: 0.12 },
+  tension: { warmth: 0.12, concern: 0.42, tension: 0.82, passiveAggression: 0.3 },
+  passiveAggression: { warmth: 0.1, concern: 0.35, tension: 0.62, passiveAggression: 0.88 },
+}
+let mockTurn = 0
+
+async function mockReply(messages) {
+  await wait(500 + Math.random() * 500) // feel like a real call
+  const lastYou = [...(messages || [])].reverse().find(m => m.who === 'you')
+  const axis = lastYou ? topAxis(scoreMessage(lastYou.text)) : 'warmth'
+  const speakers = MOCK_SPEAKERS[axis]
+  const who = speakers[mockTurn++ % speakers.length]
+  const pool = MOCK_LINES[axis][who] || MOCK_LINES[axis][speakers[0]]
+  const text = pool[Math.floor(Math.random() * pool.length)]
+  return { who, text, mood: MOCK_MOOD[axis] }
 }
 
 // dev sanity: the marquee tones score the way the demo promises
