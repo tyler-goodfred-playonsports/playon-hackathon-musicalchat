@@ -5,12 +5,12 @@
 // Vercel AI SDK generateObject call per message when live scoring lands.
 
 export const CAST = {
-  tyler:  { name: 'Tyler',  initials: 'TY', hue: 158 },
-  aswani: { name: 'Aswani', initials: 'AS', hue: 222 },
-  robb:   { name: 'Robb',   initials: 'RB', hue: 28 },
-  ajay:   { name: 'Ajay',   initials: 'AJ', hue: 268 },
-  noah:   { name: 'Noah',   initials: 'NO', hue: 320 },
-  you:    { name: 'You',    initials: 'YO', hue: 200 },
+  tyler:  { name: 'Tyler',  initials: 'TY', hue: 158, avatar: '/avatars/tyler.png' },
+  aswani: { name: 'Aswani', initials: 'AS', hue: 222, avatar: '/avatars/aswani.png' },
+  robb:   { name: 'Robb',   initials: 'RB', hue: 28,  avatar: '/avatars/robb.png' },
+  ajay:   { name: 'Ajay',   initials: 'AJ', hue: 268, avatar: '/avatars/ajay.png' },
+  noah:   { name: 'Noah',   initials: 'NO', hue: 320, avatar: '/avatars/noah.png' },
+  you:    { name: 'You',    initials: 'YO', hue: 200, avatar: '/avatars/dan.png' },
 }
 
 // Movement titles per genre, indexed by the `movement` slot on each beat:

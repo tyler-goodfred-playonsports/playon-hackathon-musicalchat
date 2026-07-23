@@ -152,7 +152,7 @@ function Message({ m }) {
   const c = CAST[m.who]
   return (
     <div className="msg" style={{ '--aura': moodColor(m.mood, 0.55), '--hue': c.hue }}>
-      <div className="avatar">{c.initials}</div>
+      <div className="avatar">{c.avatar ? <img src={c.avatar} alt={c.name} /> : c.initials}</div>
       <div className="body">
         <div className="meta"><b>{c.name}</b><time>{m.time}</time></div>
         <p>{m.text}</p>
@@ -165,7 +165,7 @@ function Typing({ who }) {
   const c = CAST[who]
   return (
     <div className="msg typing" style={{ '--hue': c.hue }}>
-      <div className="avatar">{c.initials}</div>
+      <div className="avatar">{c.avatar ? <img src={c.avatar} alt={c.name} /> : c.initials}</div>
       <div className="body">
         <div className="meta"><b>{c.name}</b><span className="muted">is typing…</span></div>
         <div className="dots"><span /><span /><span /></div>
