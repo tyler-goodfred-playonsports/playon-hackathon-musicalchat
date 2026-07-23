@@ -34,7 +34,9 @@ const PALETTES = {
 let ctx, master, analyser
 let padFilter, tremBase, tremDepth, tremLfo, arpBus, droneGain, delaySend
 let voices = []
-let stems = null // [{gain, mood}] when ElevenLabs stems are present
+let stems = null // [{src, gain, mood}] when ElevenLabs stems are present
+let genre = 'classical'
+let synthBuilt = false
 let cur = { warmth: 0.85, concern: 0.1, tension: 0.05, passiveAggression: 0 }
 let target = { ...cur }
 let nextNote = 0, nextChord = 0, walker = 3, dir = 1, chordStep = 0
@@ -64,17 +66,38 @@ export async function start() {
 
   nextNote = nextChord = ctx.currentTime + 0.1
   setInterval(tick, TICK * 1000)
-  window.UNDERTONES = { getMood, setMood, mode: () => (stems ? 'stems' : 'synth'), state: () => ctx.state } // demo debug handle
+  window.UNDERTONES = { getMood, setMood, setGenre, getGenre, mode: () => (stems ? 'stems' : 'synth'), state: () => ctx.state } // demo debug handle
 }
 
 export function setMood(mood) { target = { ...target, ...mood } }
 export const getMood = () => ({ ...cur })
 export const getAnalyser = () => analyser
+export const getGenre = () => genre
+
+// Switch stem genre live. Returns true if the genre's stems loaded; before
+// start() it just records the choice for start() to pick up.
+export async function setGenre(g) {
+  genre = g
+  if (!ctx) return true
+  const next = await loadStems().catch(() => null)
+  if (!next) return false
+  const now = ctx.currentTime
+  if (stems) {
+    for (const s of stems) {
+      s.gain.gain.setTargetAtTime(0, now, 0.4)
+      s.src.stop(now + 2)
+    }
+  } else muteSynth(now)
+  stems = next
+  return true
+}
 
 // ---- ElevenLabs stems backend -------------------------------------------
 
 async function loadStems() {
-  const res = await fetch('/music/manifest.json')
+  // per-genre manifest first, then the legacy flat layout
+  let res = await fetch(`/music/${genre}/manifest.json`)
+  if (!res.ok || !(res.headers.get('content-type') || '').includes('json')) res = await fetch('/music/manifest.json')
   if (!res.ok || !(res.headers.get('content-type') || '').includes('json')) return null
   const list = await res.json()
   return Promise.all(list.map(async s => {
@@ -87,7 +110,7 @@ async function loadStems() {
     src.connect(gain)
     gain.connect(master)
     src.start()
-    return { gain, mood: s.mood }
+    return { src, gain, mood: s.mood }
   }))
 }
 
@@ -100,7 +123,15 @@ function applyStems(now) {
 
 // ---- Procedural synth backend --------------------------------------------
 
+// silence the synth buses when stems take over mid-performance
+function muteSynth(now) {
+  if (!synthBuilt) return
+  for (const g of [tremBase, arpBus, droneGain, delaySend]) g.gain.setTargetAtTime(0, now, 0.4)
+}
+
 function buildSynth() {
+  if (synthBuilt) return
+  synthBuilt = true
   // fake hall: filtered feedback delay
   const delay = ctx.createDelay(1)
   delay.delayTime.value = 0.31
