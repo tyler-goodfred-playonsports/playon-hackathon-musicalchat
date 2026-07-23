@@ -48,7 +48,7 @@ export function scoreMessage(text, base = NEUTRAL) {
 // heuristic so the demo never blocks or breaks when the network/key is absent.
 export async function scoreMessageAI(text, base = NEUTRAL) {
   const ctrl = new AbortController()
-  const timer = setTimeout(() => ctrl.abort(), 1500)
+  const timer = setTimeout(() => ctrl.abort(), 4000)
   try {
     const res = await fetch('/api/turn', {
       method: 'POST',
