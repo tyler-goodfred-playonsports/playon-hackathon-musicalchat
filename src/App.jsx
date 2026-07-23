@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import * as music from './music'
-import { CAST, BEATS, CODA, delayFor } from './conversation'
+import { CAST, BEATS, CODA, MOVEMENTS, delayFor } from './conversation'
 import { scoreMessage } from './score'
+import { drawSprite } from './sprites'
 
 const AXIS_META = [
   ['warmth', 'Warmth', '145 75% 52%'],
@@ -174,7 +175,7 @@ export default function App() {
   const [started, setStarted] = useState(false)
   const [msgs, setMsgs] = useState([])
   const [typing, setTyping] = useState(null)
-  const [movement, setMovement] = useState('— tuning —')
+  const [movement, setMovement] = useState(-1) // slot index into MOVEMENTS[genre]
   const [text, setText] = useState('')
   const [genres, setGenres] = useState([])
   const [genre, setGenre] = useState('classical')
@@ -249,6 +250,19 @@ export default function App() {
     setGenre(g)
     await music.setGenre(g)
   }
+
+  // the genre's pixel musician plays a little 5-frame loop
+  const spriteRef = useRef()
+  useEffect(() => {
+    const c = spriteRef.current
+    if (!c) return
+    const g = c.getContext('2d')
+    let frame = 0
+    const step = () => { drawSprite(g, genre, frame++, 4); }
+    step()
+    const id = setInterval(step, 170)
+    return () => clearInterval(id)
+  }, [genre, genres])
 
   // smooth-scroll the feed as messages land
   useEffect(() => { feedRef.current?.scrollTo({ top: 1e9, behavior: 'smooth' }) }, [msgs, typing])
@@ -363,10 +377,13 @@ export default function App() {
 
         <aside className="score">
           <h2>♪ The Score</h2>
-          <div className="movement">{movement}</div>
+          <div className="movement">{movement < 0 ? '— tuning —' : (MOVEMENTS[genre] || MOVEMENTS.classical)[movement]}</div>
           {genres.length > 0 && (
             <div className="genre">
-              <span>Genre · <b>{GENRE_META[genre]?.[1] || genre}</b></span>
+              <div className="genre-head">
+                <span>Genre · <b>{GENRE_META[genre]?.[1] || genre}</b></span>
+                <canvas ref={spriteRef} width={64} height={64} className="sprite" />
+              </div>
               <div className="genre-grid">
                 {genres.map(g => {
                   const [emoji, label] = GENRE_META[g] || ['🎵', g]

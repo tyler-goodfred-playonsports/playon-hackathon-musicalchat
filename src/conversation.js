@@ -12,11 +12,29 @@ export const CAST = {
   you:   { name: 'You',           initials: 'YO', hue: 200 },
 }
 
+// Movement titles per genre, indexed by the `movement` slot on each beat:
+// 0 warm open · 1 uneasy question · 2 crescendo · 3 fury · 4 reconciliation · 5 coda
+export const MOVEMENTS = {
+  classical: ['I. Morning Mood (pastorale)', 'II. Un poco inquieto', 'II. Un poco inquieto (crescendo)', 'III. Adding Stakeholders (allegro furioso, ma cortese)', 'IV. Riconciliazione (tenderly)', 'V. Coda (all clear)'],
+  edm:       ['I. Sunrise Set (opening groove)', 'II. The Filter Sweep (something’s off)', 'II. Building the Drop', 'III. The Drop (adding stakeholders, 128bpm)', 'IV. Afterglow (hands in the air)', 'V. Outro (lights up)'],
+  country:   ['I. Front Porch Sunrise', 'II. Trouble on the Wind', 'II. Storm Clouds Gatherin’', 'III. High Noon Showdown (y’all been added)', 'IV. Mendin’ Fences', 'V. Ride Off Into the Sunset'],
+  jazz:      ['I. Sunday Brunch (brushes, easy)', 'II. A Question Mark in Blue', 'II. Trading Fours (getting pointed)', 'III. The Hard Bop (stakeholders sit in)', 'IV. Ballad for Two PRs', 'V. Last Call (take the head out)'],
+  cinematic: ['I. Establishing Shot (dawn)', 'II. Something in the Shadows', 'II. The Plot Thickens', 'III. The Confrontation (cc: everyone)', 'IV. Redemption Arc', 'V. End Credits'],
+  lofi:      ['I. Coffee & Rain (side A)', 'II. Skipped Beat (hmm)', 'II. Tape Warble (uneasy)', 'III. Distorted Loop (added for visibility)', 'IV. Golden Hour (all good)', 'V. Sleep Track (loops forever)'],
+  metal:     ['I. Clean Intro (the calm before)', 'II. Palm-Muted Doubts', 'II. Tuning Down (it builds)', 'III. BREAKDOWN (stakeholders have entered)', 'IV. The Power Ballad', 'V. Final Chord (feedback rings out)'],
+  chiptune:  ['I. Overworld Theme', 'II. Cave Level (watch your step)', 'II. Miniboss Music', 'III. BOSS FIGHT (stakeholders appear!)', 'IV. Victory Fanfare', 'V. Credits Roll (press start)'],
+  muzak:     ['I. Doors Open (floor 1)', 'II. Between Floors (slight delay)', 'II. Please Hold (your call matters)', 'III. Mezzanine of Menace (aggressively pleasant)', 'IV. Doors Opening (ground floor)', 'V. Have a Nice Day'],
+  western:   ['I. Dawn on the Prairie', 'II. A Stranger Rides In', 'II. Tumbleweeds (eyes narrow)', 'III. High Noon (draw, partner)', 'IV. Peace Returns to Town', 'V. Into the Sunset'],
+  bossa:     ['I. Manhã de Sol (easy now)', 'II. Uma Pergunta (a question)', 'II. Clouds Over Copacabana', 'III. Garota Furiosa (smiling, though)', 'IV. Reconciliação (one more drink)', 'V. Fim (até amanhã)'],
+  synthwave: ['I. Sunset Drive (top down)', 'II. Neon Flicker (something’s wrong)', 'II. Night Chase Ignition', 'III. OUTRUN (stakeholders in pursuit)', 'IV. Dawn Over the Grid', 'V. Fade to VHS'],
+  reggae:    ['I. Island Morning (irie)', 'II. Shadow ’Cross the Sun', 'II. Dub Pressure Rising', 'III. Heavy Steppers (babylon cc’d)', 'IV. One Love (resolution)', 'V. Sunset Session'],
+}
+
 // Each beat plays after one user send (beat 0 autoplays). The user's own
 // messages are scored live by score.js; only scripted replies are authored.
 export const BEATS = [
   {
-    movement: 'I. Morning Mood (pastorale)',
+    movement: 0,
     messages: [
       { who: 'alex', text: 'morning team ☀️ just opened PR #4821 — the favorites-service refactor. 214 files, but I promise most of it is just moves 😄',
         mood: { warmth: 0.92, concern: 0.06, tension: 0.03, passiveAggression: 0 } },
@@ -25,7 +43,7 @@ export const BEATS = [
     ],
   },
   {
-    movement: 'II. Un poco inquieto',
+    movement: 1,
     messages: [
       { who: 'sam', text: 'first pass: the naming is 💯 and the test coverage is genuinely lovely',
         mood: { warmth: 0.8, concern: 0.12, tension: 0.08, passiveAggression: 0.02 } },
@@ -34,7 +52,7 @@ export const BEATS = [
     ],
   },
   {
-    movement: 'II. Un poco inquieto (crescendo)',
+    movement: 2,
     messages: [
       { who: 'alex', text: 'it collapsed the DI graph a lot — threading it through three services felt worse tbh',
         mood: { warmth: 0.3, concern: 0.4, tension: 0.42, passiveAggression: 0.15 } },
@@ -43,7 +61,7 @@ export const BEATS = [
     ],
   },
   {
-    movement: 'III. Adding Stakeholders (allegro furioso, ma cortese)',
+    movement: 3,
     messages: [
       { who: 'sam', text: 'This is a significant architectural change. Adding Stephanie and Mark for visibility.',
         mood: { warmth: 0.05, concern: 0.55, tension: 0.88, passiveAggression: 0.97 } },
@@ -54,7 +72,7 @@ export const BEATS = [
     ],
   },
   {
-    movement: 'IV. Riconciliazione (tenderly)',
+    movement: 4,
     messages: [
       { who: 'alex', text: '…totally fair, I should have flagged the design shift up front. want to pair after standup and split this into two PRs?',
         mood: { warmth: 0.6, concern: 0.4, tension: 0.25, passiveAggression: 0.05 } },
@@ -69,14 +87,14 @@ export const BEATS = [
 // After the script ends, further sends cycle these.
 export const CODA = [
   {
-    movement: 'V. Coda (all clear)',
+    movement: 5,
     messages: [
       { who: 'sam', text: '🎻 (the orchestra takes a bow)',
         mood: { warmth: 0.9, concern: 0.05, tension: 0.03, passiveAggression: 0 } },
     ],
   },
   {
-    movement: 'V. Coda (all clear)',
+    movement: 5,
     messages: [
       { who: 'alex', text: 'encore tomorrow — same thread, new PR 😄',
         mood: { warmth: 0.9, concern: 0.05, tension: 0.03, passiveAggression: 0 } },

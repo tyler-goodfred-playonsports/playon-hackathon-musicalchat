@@ -156,8 +156,10 @@ main { flex: 1; display: flex; gap: 16px; padding: 16px 20px 20px; min-height: 0
   transform-origin: bottom;
 }
 .genre { display: flex; flex-direction: column; gap: 8px; }
-.genre > span { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(232, 234, 240, 0.55); }
-.genre > span b { color: rgba(232, 234, 240, 0.9); }
+.genre-head { display: flex; align-items: center; justify-content: space-between; }
+.genre-head span { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(232, 234, 240, 0.55); }
+.genre-head span b { color: rgba(232, 234, 240, 0.9); }
+.sprite { width: 48px; height: 48px; image-rendering: pixelated; flex: none; }
 .genre-grid { display: flex; flex-wrap: wrap; gap: 7px; }
 .genre-grid button {
   width: 34px;
